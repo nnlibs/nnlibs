@@ -21,5 +21,15 @@ int main() {
     std::cout << std::endl;
   }
 
+  t({0, 1}) = 10;
+  t({1, 2}) = 20;
+
+  for (int i = 0; i < shape[0]; ++i) {
+    for (int j = 0; j < shape[1]; ++j) {
+      std::cout << t({i, j}) << " ";
+    }
+    std::cout << std::endl;
+  }
+
   return 0;
 }

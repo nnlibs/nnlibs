@@ -23,6 +23,8 @@ class Tensor {
     return data[idx];
   }
 
+  int Size() const { return data.size(); }
+
   // Tensor reshape(const std::vector<int>& new_shape) const {
   //   assert(std::accumulate(new_shape.begin(), new_shape.end(), 1,
   //                          std::multiplies<int>()) == data.size());
@@ -55,6 +57,9 @@ class Tensor {
 
  public:
   std::vector<float> data;
+  // TODO: gradient
+  std::vector<float> grad;
+
   // cv: (batch_size, channels, height, width)
   // nlp: (batch_size, sequence_length, embedding_dim)
   // fc: (batch_size, num_features)
