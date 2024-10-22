@@ -10,4 +10,7 @@ class Relu : public Operator {
 
   // std::vector<float> params() { return {}; }
   // std::vector<float> grads() { return {}; }
+
+ protected:
+  std::shared_ptr<Tensor> grad = nullptr;
 };

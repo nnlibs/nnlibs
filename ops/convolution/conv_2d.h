@@ -17,7 +17,10 @@ class Conv2d : public Operator {
         stride(stride),
         padding(padding),
         weights(weights),
-        bias(bias) {}
+        bias(bias) {
+    grad_w = std::make_shared<Tensor>(weights->shape);
+    grad_b = std::make_shared<Tensor>(bias->shape);
+  }
 
   Conv2d(int in_channel, int out_channel, int kernel_h, int kernel_w,
          int stride, int padding)
@@ -44,7 +47,8 @@ class Conv2d : public Operator {
     std::cout << "Conv2d forward not implement" << std::endl;
   }
 
-  std::shared_ptr<Tensor> Backward(const std::shared_ptr<Tensor> output) {
+  std::shared_ptr<Tensor> Backward(const std::shared_ptr<Tensor> output,
+                                   float learning_rate) {
     std::cout << "Conv2d backward not implement" << std::endl;
   }
 
@@ -60,4 +64,7 @@ class Conv2d : public Operator {
   int out_channel;
   int kernel_h;
   int kernel_w;
+
+  std::shared_ptr<Tensor> grad_w;
+  std::shared_ptr<Tensor> grad_b;
 };

@@ -11,10 +11,8 @@ class LinearCPU : public Linear {
   std::shared_ptr<Tensor> Forward(
       const std::shared_ptr<Tensor> input) override final;
 
-  std::shared_ptr<Tensor> Backward(
-      const std::shared_ptr<Tensor> output) override final;
-
-  void UpdateParams(float learning_rate) override final;
+  std::shared_ptr<Tensor> Backward(const std::shared_ptr<Tensor> output,
+                                   float learning_rate) override final;
 
   ~LinearCPU();
 };

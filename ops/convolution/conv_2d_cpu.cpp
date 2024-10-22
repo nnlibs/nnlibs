@@ -47,7 +47,7 @@ std::shared_ptr<Tensor> Conv2dCPU::Forward(
 }
 
 std::shared_ptr<Tensor> Conv2dCPU::Backward(
-    const std::shared_ptr<Tensor> output) {
+    const std::shared_ptr<Tensor> output, float learning_rate) {
   return nullptr;
 }
 

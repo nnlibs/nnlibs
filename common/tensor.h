@@ -57,8 +57,7 @@ class Tensor {
 
  public:
   std::vector<float> data;
-  // TODO: gradient
-  std::vector<float> grad;
+  // std::vector<float> grad;
 
   // cv: (batch_size, channels, height, width)
   // nlp: (batch_size, sequence_length, embedding_dim)

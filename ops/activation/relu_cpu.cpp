@@ -1,22 +1,22 @@
-#pragma once
-
 #include "relu_cpu.h"
 
 ReluCPU::ReluCPU() : Relu() {}
 
 std::shared_ptr<Tensor> ReluCPU::Forward(const std::shared_ptr<Tensor> input) {
   // in-place perf
+  grad.reset(new Tensor(input->shape));
   for (int i = 0; i < input->Size(); i++) {
     input->data[i] = std::max(0.0f, input->data[i]);
+    grad->data[i] = input->data[i] > 0 ? 1 : 0;
   }
   return input;
 }
 
-std::shared_ptr<Tensor> ReluCPU::Backward(
-    const std::shared_ptr<Tensor> output) {
-  std::shared_ptr<Tensor> diff = std::make_shared<Tensor>(output->shape);
+std::shared_ptr<Tensor> ReluCPU::Backward(const std::shared_ptr<Tensor> input,
+                                          float learning_rate) {
+  std::shared_ptr<Tensor> diff = std::make_shared<Tensor>(input->shape);
   for (int i = 0; i < diff->Size(); i++) {
-    diff->data[i] = output->data[i] > 0 ? 1 : 0;  // * diff
+    diff->data[i] = input->data[i] * grad->data[i];
   }
   return diff;
 }

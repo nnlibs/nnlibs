@@ -1,18 +1,18 @@
 #pragma once
 
-#include "ops/ops.h"
+#include "network.h"
 
-class SimpleNetwork {
+class SimpleNetwork : public Network {
  private:
   Linear* fc1;
   Relu* relu;
   Linear* fc2;
   Sigmoid* sigmoid;
-  float learn_rate = 0.01;
 
  public:
   SimpleNetwork(int input_size, int hidden_size, int output_size,
-                bool use_gpu = false) {
+                bool use_gpu = false)
+      : Network(use_gpu) {
     std::shared_ptr<Tensor> fc1_w =
         std::make_shared<Tensor>(std::vector<int>{input_size, hidden_size});
     std::shared_ptr<Tensor> fc1_b =
@@ -48,8 +48,8 @@ class SimpleNetwork {
     }
   }
 
-  // 前向传播
-  std::shared_ptr<Tensor> Forward(const std::shared_ptr<Tensor> input) {
+  std::shared_ptr<Tensor> Forward(
+      const std::shared_ptr<Tensor> input) override final {
     auto fc1_out = fc1->Forward(input);
     auto relu_out = relu->Forward(fc1_out);
     auto fc2_out = fc2->Forward(relu_out);
@@ -59,13 +59,12 @@ class SimpleNetwork {
     // sigmoid->Forward(fc2->Forward(relu->Forward(fc1->Forward(input))));
   }
 
-  // 反向传播
-  void Backward(const std::shared_ptr<Tensor> loss) {
-    // 计算损失函数和梯度
-    // sigmoid->Backward();
-    // fc2->Backward();
-    // relu->Backward();
-    // fc1->Backward();
+  void Backward(const std::shared_ptr<Tensor> loss, float lr) override final {
+    // calcu grad, update weights params
+    auto sig_diff = sigmoid->Backward(loss, lr);
+    auto fc2_diff = fc2->Backward(sig_diff, lr);
+    auto relu_diff = relu->Backward(sig_diff, lr);
+    auto fc1_diff = fc1->Backward(relu_diff, lr);
   }
 
   ~SimpleNetwork() {
