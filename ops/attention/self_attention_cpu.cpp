@@ -84,7 +84,7 @@ std::shared_ptr<Tensor> SelfAttentionCPU::Forward(
     for (int j = 0; j < seq_len; ++j) {
       float dot_product = 0.0f;
       // q * k^T
-      for (int d = 0; d < input_dim; ++d) {  // todo
+      for (int d = 0; d < head_dim; ++d) {
         dot_product += q_data({i, d}) * k_data({j, d});
       }
       // / sqrt(d_k)
