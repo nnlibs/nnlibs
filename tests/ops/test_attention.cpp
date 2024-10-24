@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "ops/attention/multi_head_attention_cpu.h"
 #include "ops/attention/self_attention_cpu.h"
 
 int main() {
@@ -31,8 +32,8 @@ int main() {
     o_weights->data[i] = static_cast<float>(std::rand()) / RAND_MAX;
   }
 
-  SelfAttention *atte =
-      new SelfAttentionCPU(dim, q_weights, k_weights, v_weights, o_weights);
+  SelfAttention *atte = new SelfAttentionCPU(dim, dim, q_weights, k_weights,
+                                             v_weights, o_weights);
   auto o = atte->Forward(t_ptr);
   std::cout << "conv output shape: ";
   for (auto s : o->shape) {

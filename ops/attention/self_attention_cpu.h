@@ -4,9 +4,10 @@
 
 class SelfAttentionCPU : public SelfAttention {
  public:
-  SelfAttentionCPU(int input_dim);
+  SelfAttentionCPU(int input_dim, int head_dim);
 
-  SelfAttentionCPU(int input_dim, const std::shared_ptr<Tensor> query_weights,
+  SelfAttentionCPU(int input_dim, int head_dim,
+                   const std::shared_ptr<Tensor> query_weights,
                    const std::shared_ptr<Tensor> key_weights,
                    const std::shared_ptr<Tensor> value_weights,
                    const std::shared_ptr<Tensor> output_weights);
