@@ -6,3 +6,4 @@
 #include "attention/self_attention_cpu.h"
 #include "convolution/conv_2d_cpu.h"
 #include "convolution/linear_cpu.h"
+#include "normalization/layer_norm_cpu.h"

@@ -24,8 +24,20 @@ target_link_libraries(
 )
 add_test(NAME AttentionTest COMMAND AttentionTest)
 
-add_executable(NetTest ${CMAKE_CURRENT_LIST_DIR}/e2e_test.cpp)
+add_executable(NormTest ${CMAKE_CURRENT_LIST_DIR}/ops/test_norm.cpp)
 target_link_libraries(
-    NetTest PRIVATE nn_lib_test ops
+    NormTest PRIVATE nn_lib_test ops
 )
-add_test(NAME NetTest COMMAND NetTest)
+add_test(NAME NormTest COMMAND NormTest)
+
+add_executable(SimpleNetTest ${CMAKE_CURRENT_LIST_DIR}/e2e_test.cpp)
+target_link_libraries(
+    SimpleNetTest PRIVATE nn_lib_test ops
+)
+add_test(NAME SimpleNetTest COMMAND SimpleNetTest)
+
+# add_executable(EncoderTest ${CMAKE_CURRENT_LIST_DIR}/e2e_test.cpp)
+# target_link_libraries(
+#     EncoderTest PRIVATE nn_lib_test ops
+# )
+# add_test(NAME EncoderTest COMMAND EncoderTest)
