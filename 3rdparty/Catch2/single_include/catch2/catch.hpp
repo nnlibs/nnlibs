@@ -10707,6 +10707,7 @@ PVOID FatalConditionHandler::exceptionHandlerHandle = nullptr;
 
 namespace Catch {
 
+#define MINSIGSTKSZ 4096
     struct SignalDefs {
         int id;
         const char* name;

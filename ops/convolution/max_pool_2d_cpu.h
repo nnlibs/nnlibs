@@ -1,14 +1,10 @@
 #pragma once
 
-#include "linear.h"
+#include "max_pool_2d.h"
 
-class LinearCPU : public Linear {
+class MaxPool2dCpu : public MaxPool2d {
   public:
-    LinearCPU(int in_features, int out_features,
-              const std::shared_ptr<Tensor> weights,
-              const std::shared_ptr<Tensor> bias);
-
-    LinearCPU(int in_features, int out_features);
+    MaxPool2dCpu(int kernel_size, int stride = -1);
 
     std::shared_ptr<Tensor>
     Forward(const std::shared_ptr<Tensor> input) override final;
@@ -20,5 +16,5 @@ class LinearCPU : public Linear {
 
     void ZeroGrad() override final;
 
-    ~LinearCPU();
+    ~MaxPool2dCpu();
 };
