@@ -44,7 +44,8 @@ std::shared_ptr<Tensor> LayerNormCPU::Forward(std::shared_ptr<Tensor> input) {
 }
 
 std::shared_ptr<Tensor>
-LayerNormCPU::Backward(std::shared_ptr<Tensor> grad_output, float lr) {}
+LayerNormCPU::Backward(std::shared_ptr<Tensor> grad_output, float learning_rate,
+                       float momentum) {}
 
 std::shared_ptr<Tensor> LayerNormCPU::Parameters() { return nullptr; }
 

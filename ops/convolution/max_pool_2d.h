@@ -15,7 +15,7 @@ class MaxPool2d : public Operator {
     }
 
     std::shared_ptr<Tensor> Backward(const std::shared_ptr<Tensor> output,
-                                     float learning_rate) {
+                                     float learning_rate, float momentum) {
         std::cout << "MaxPool2d backward not implement" << std::endl;
     }
 

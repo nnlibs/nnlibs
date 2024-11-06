@@ -7,19 +7,6 @@
 #include "network/cla_network.h"
 #include "tests/utils/image_ut.h"
 
-void UpdateParams(ClassifyNetwork &nn, float lr,
-                  const std::vector<std::shared_ptr<Tensor>> &inputs,
-                  const std::vector<std::shared_ptr<Tensor>> &targets) {
-    int total_data = inputs.size();
-    std::shared_ptr<Tensor> diff =
-        std::make_shared<Tensor>(std::vector<int>{1, 10});
-    for (int i = 0; i < total_data; ++i) {
-        diff->data[i] =
-            2 * (nn.Forward(inputs[i])->data[i] - targets[i]->data[i]);
-    }
-    nn.Backward(diff, lr);
-}
-
 std::pair<uint32_t, float> Predict(const std::shared_ptr<Tensor> &logits) {
     uint32_t max_idx = 0;
     float max_val = logits->data[0];
@@ -81,8 +68,8 @@ int main() {
     std::string train_file_prefix =
         "/home/aico/Downloads/images/cifar-10-batches-bin/";
     std::vector<std::string> train_files = {
-        "data_batch_1.bin"
-        // , "data_batch_2.bin", "data_batch_3.bin",
+        "data_batch_1.bin",
+        // "data_batch_2.bin", "data_batch_3.bin",
         // "data_batch_4.bin", "data_batch_5.bin"
     };
     std::string test_file = "test_batch.bin";
@@ -103,18 +90,16 @@ int main() {
                 // run forward and get logits
                 auto logits = clann.Forward(image_data_list[j].image);
                 // init target
-                auto target = std::make_shared<Tensor>(logits->shape);
-                for (int i = 0; i < 10; ++i) {
-                    target->data[i] = 0.0;
-                }
-                target->data[image_data_list[j].label] = 1.0;
-
+                auto target = std::make_shared<Tensor>(std::vector<int>{1});
+                target->data[0] = image_data_list[j].label;
+                std::cout << "label: " << image_data_list[j].label
+                          << " ,logits: " << logits << std::endl;
                 ep_loss += ce.Forward(logits, target);
                 auto loss_grad = ce.Backward(logits, target);
-                clann.Backward(loss_grad, 0.001);
-                if (j % 500 == 499) {
+                clann.Backward(loss_grad, 0.001, 0.9);
+                if (j % 200 == 199) {
                     std::cout << "Epoch: " << ep << ", iter: " << j
-                              << ", loss: " << ep_loss / 500 << std::endl;
+                              << ", loss: " << ep_loss / 200 << std::endl;
                     ep_loss = 0.0f;
                 }
             }

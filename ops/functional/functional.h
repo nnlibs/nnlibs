@@ -3,7 +3,9 @@
 #include <algorithm>
 #include <array>
 #include <cassert>
+#include <cmath>
 #include <memory>
+#include <random>
 #include <vector>
 
 namespace F {
@@ -95,6 +97,18 @@ static void Normalize(std::shared_ptr<Tensor> input,
                     (input_mut({0, c, h, w}) - mean[c]) / std[c];
             }
         }
+    }
+}
+
+static void kaiming_normal(std::shared_ptr<Tensor> weights, int fan_in) {
+    // 计算标准差
+    float std_dev = std::sqrt(2.0f / fan_in);
+    std::default_random_engine generator;
+    std::normal_distribution<float> distribution(0.0f, std_dev);
+
+    // 按标准正态分布初始化权重
+    for (int i = 0; i < weights->Size(); ++i) {
+        weights->data[i] = distribution(generator);
     }
 }
 

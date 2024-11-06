@@ -53,8 +53,8 @@ MultiHeadAttentionCPU::Forward(std::shared_ptr<Tensor> input) {
 }
 
 std::shared_ptr<Tensor>
-MultiHeadAttentionCPU::Backward(std::shared_ptr<Tensor> grad_output, float lr) {
-}
+MultiHeadAttentionCPU::Backward(std::shared_ptr<Tensor> grad_output, float lr,
+                                float momentum) {}
 
 std::shared_ptr<Tensor> MultiHeadAttentionCPU::Parameters() { return nullptr; }
 

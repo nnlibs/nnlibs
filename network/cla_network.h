@@ -1,10 +1,8 @@
 #pragma once
 
 #include "activation/relu_cpu.h"
-#include "activation/sigmoid_cpu.h"
 #include "convolution/conv_2d_cpu.h"
 #include "convolution/max_pool_2d_cpu.h"
-#include "functional/functional.h"
 #include "network.h"
 
 class ClassifyNetwork : public Network {
@@ -55,7 +53,7 @@ class ClassifyNetwork : public Network {
 
         // reshape to (1, 16*5*5)
         shape = max_pool2_out->shape;
-        max_pool2_out->shape = std::vector<int>{max_pool2_out->Size()};
+        max_pool2_out->View(std::vector<int>{1, 16 * 5 * 5});
 
         auto liner1_out = ln1->Forward(max_pool2_out);
         auto relu3_out = relu3->Forward(liner1_out);
@@ -66,33 +64,34 @@ class ClassifyNetwork : public Network {
         return liner3_out;
     }
 
-    void Backward(const std::shared_ptr<Tensor> loss, float lr) override final {
-        auto liner3_grad = ln3->Backward(loss, lr);
+    void Backward(const std::shared_ptr<Tensor> loss, float lr,
+                  float momentum) override final {
+        auto liner3_grad = ln3->Backward(loss, lr, momentum);
         // std::cout << "liner3_grad: " << liner3_grad << std::endl;
-        auto relu4_grad = relu4->Backward(liner3_grad, lr);
+        auto relu4_grad = relu4->Backward(liner3_grad, lr, momentum);
         // std::cout << "relu4_grad: " << relu4_grad << std::endl;
-        auto liner2_grad = ln2->Backward(relu4_grad, lr);
+        auto liner2_grad = ln2->Backward(relu4_grad, lr, momentum);
         // std::cout << "liner2_grad: " << liner2_grad << std::endl;
-        auto relu3_grad = relu3->Backward(liner2_grad, lr);
+        auto relu3_grad = relu3->Backward(liner2_grad, lr, momentum);
         // std::cout << "relu3_grad: " << relu3_grad << std::endl;
-        auto liner1_grad = ln1->Backward(relu3_grad, lr);
+        auto liner1_grad = ln1->Backward(relu3_grad, lr, momentum);
         // std::cout << "liner1_grad: " << liner1_grad << std::endl;
 
         // reshape to (1, 16, 5, 5)
-        liner1_grad->shape = shape;
+        liner1_grad->View(shape);
 
-        auto max_pool2_grad = max_pool2->Backward(liner1_grad, lr);
+        auto max_pool2_grad = max_pool2->Backward(liner1_grad, lr, momentum);
         // std::cout << "max_pool2_grad: " << max_pool2_grad << std::endl;
-        auto relu2_grad = relu2->Backward(max_pool2_grad, lr);
+        auto relu2_grad = relu2->Backward(max_pool2_grad, lr, momentum);
         // std::cout << "relu2_grad: " << relu2_grad << std::endl;
-        auto conv2_grad = conv2->Backward(relu2_grad, lr);
+        auto conv2_grad = conv2->Backward(relu2_grad, lr, momentum);
         // std::cout << "conv2_grad: " << conv2_grad << std::endl;
 
-        auto max_pool1_grad = max_pool1->Backward(conv2_grad, lr);
+        auto max_pool1_grad = max_pool1->Backward(conv2_grad, lr, momentum);
         // std::cout << "max_pool1_grad: " << max_pool1_grad << std::endl;
-        auto relu1_grad = relu1->Backward(max_pool1_grad, lr);
+        auto relu1_grad = relu1->Backward(max_pool1_grad, lr, momentum);
         // std::cout << "relu1_grad: " << relu1_grad << std::endl;
-        auto conv1_grad = conv1->Backward(relu1_grad, lr);
+        auto conv1_grad = conv1->Backward(relu1_grad, lr, momentum);
         // std::cout << "conv1_grad: " << conv1_grad << std::endl;
     }
 

@@ -57,7 +57,7 @@ MaxPool2dCpu::Forward(const std::shared_ptr<Tensor> input) {
 
 std::shared_ptr<Tensor>
 MaxPool2dCpu::Backward(const std::shared_ptr<Tensor> grad_output,
-                       float learning_rate) {
+                       float learning_rate, float momentum) {
     std::shared_ptr<Tensor> grad_input = std::make_shared<Tensor>(
         std::vector<int>{1, in_channels, in_height, in_width});
 

@@ -32,7 +32,7 @@ LinearCPU::Forward(const std::shared_ptr<Tensor> input) {
 
 std::shared_ptr<Tensor>
 LinearCPU::Backward(const std::shared_ptr<Tensor> grad_output,
-                    float learning_rate) {
+                    float learning_rate, float momentum) {
     std::shared_ptr<Tensor> diff =
         std::make_shared<Tensor>(std::vector<int>{in_features});
     std::shared_ptr<Tensor> grad_weights =
@@ -52,12 +52,16 @@ LinearCPU::Backward(const std::shared_ptr<Tensor> grad_output,
     }
 
     // update weight and bias features
-    for (int i = 0; i < out_features; i++) {
-        for (int j = 0; j < in_features; j++) {
-            weights->data[i * in_features + j] -=
-                learning_rate * grad_weights->data[i * in_features + j];
-        }
-        bias->data[i] -= learning_rate * grad_bias->data[i];
+    // update weight/bias
+    for (int i = 0; i < grad_weights->Size(); i++) {
+        weights_momentum->data[i] = momentum * weights_momentum->data[i] +
+                                    (1 - momentum) * grad_weights->data[i];
+        weights->data[i] -= learning_rate * weights_momentum->data[i];
+    }
+    for (int i = 0; i < grad_bias->Size(); i++) {
+        bias_momentum->data[i] = momentum * bias_momentum->data[i] +
+                                 (1 - momentum) * grad_bias->data[i];
+        bias->data[i] -= learning_rate * bias_momentum->data[i];
     }
 
     return diff;

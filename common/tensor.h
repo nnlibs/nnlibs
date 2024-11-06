@@ -2,18 +2,33 @@
 #include <cassert>
 #include <cstddef>
 #include <cstdlib>
+#include <iostream>
 #include <memory>
 #include <numeric>
 #include <ostream>
 #include <vector>
+
+// enum OpsType {
+//     Add = 0,
+//     Sub = 2,
+//     Mul = 1,
+//     Div = 3,
+// };
 
 class Tensor {
   public:
     Tensor(const std::vector<int> &shape) : shape(shape) {
         int total_size = std::accumulate(shape.begin(), shape.end(), 1,
                                          std::multiplies<int>());
-        data.resize(total_size, 0); // 初始化为 0
+        data.resize(total_size, 0.0f);
         strides = compute_strides(shape);
+    }
+
+    Tensor(const std::initializer_list<int> &shape) : shape(shape) {
+        int total_size = std::accumulate(shape.begin(), shape.end(), 1,
+                                         std::multiplies<int>());
+        data.resize(total_size, 0.0f);
+        strides = compute_strides(this->shape);
     }
 
     float &operator()(const std::vector<int> &indices) {
@@ -25,6 +40,64 @@ class Tensor {
         }
         return data[idx];
     }
+
+    uint32_t SetValue(const std::vector<int> &indices, float value) {
+        if (indices.size() != shape.size()) {
+            std::cerr << "indices size not match shape size" << std::endl;
+            return 1;
+        }
+        int idx = 0;
+        for (size_t i = 0; i < indices.size(); ++i) {
+            if (indices[i] >= shape[i]) {
+                std::cout << "indices[" << i << "] = " << indices[i]
+                          << " >= shape[" << i << "] = " << shape[i]
+                          << std::endl;
+                return 1;
+            }
+            idx += strides[i] * indices[i];
+        }
+        data[idx] = value;
+        return 0;
+    }
+
+    uint32_t GetValue(const std::vector<int> &indices, float &value) {
+        if (indices.size() != shape.size()) {
+            std::cerr << "indices size not match shape size" << std::endl;
+            return 1;
+        }
+        int idx = 0;
+        for (size_t i = 0; i < indices.size(); ++i) {
+            if (indices[i] >= shape[i]) {
+                std::cout << "indices[" << i << "] = " << indices[i]
+                          << " >= shape[" << i << "] = " << shape[i]
+                          << std::endl;
+                return 1;
+            }
+            idx += strides[i] * indices[i];
+        }
+        value = data[idx];
+        return 0;
+    }
+
+    // uint32_t OptsValue(const std::vector<int> &indices, float value,
+    //                    OpsType type) {
+    //     if (indices.size() != shape.size()) {
+    //         std::cerr << "indices size not match shape size" << std::endl;
+    //         return 1;
+    //     }
+    //     int idx = 0;
+    //     for (size_t i = 0; i < indices.size(); ++i) {
+    //         if (indices[i] >= shape[i]) {
+    //             std::cout << "indices[" << i << "] = " << indices[i]
+    //                       << " >= shape[" << i << "] = " << shape[i]
+    //                       << std::endl;
+    //             return 1;
+    //         }
+    //         idx += strides[i] * indices[i];
+    //     }
+    //     value = data[idx];
+    //     return 0;
+    // }
 
     friend std::ostream &operator<<(std::ostream &os, const Tensor &tensor) {
         os << "Shape(";
@@ -64,10 +137,17 @@ class Tensor {
 
     int Size() const { return data.size(); }
 
-    // Tensor reshape(const std::vector<int>& new_shape) const {
-    //   assert(std::accumulate(new_shape.begin(), new_shape.end(), 1,
-    //                          std::multiplies<int>()) == data.size());
-    //   return Tensor(new_shape, data);
+    void View(const std::vector<int> &new_shape) {
+        assert(std::accumulate(new_shape.begin(), new_shape.end(), 1,
+                               std::multiplies<int>()) == data.size());
+        shape = new_shape;
+        strides = compute_strides(new_shape);
+    }
+
+    // Tensor Reshape(const std::vector<int> &new_shape) const {
+    //     assert(std::accumulate(new_shape.begin(), new_shape.end(), 1,
+    //                            std::multiplies<int>()) == data.size());
+    //     return Tensor(new_shape, data);
     // }
 
     ~Tensor() {}
@@ -96,7 +176,6 @@ class Tensor {
 
   public:
     std::vector<float> data;
-    // std::vector<float> grad;
 
     // cv: (batch_size, channels, height, width)
     // nlp: (batch_size, sequence_length, embedding_dim)

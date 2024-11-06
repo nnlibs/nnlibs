@@ -16,5 +16,5 @@ class CrossEntropy {
     ~CrossEntropy();
 
   private:
-    float softmax(const std::shared_ptr<Tensor> logits, int index);
+    std::shared_ptr<Tensor> softmax(const std::shared_ptr<Tensor> logits);
 };

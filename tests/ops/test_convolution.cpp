@@ -57,7 +57,7 @@ int main() {
     std::cout << o << std::endl;
 
     // auto param = conv->Parameters();
-    auto b = conv->Backward(grad_output, 0.001);
+    auto b = conv->Backward(grad_output, 0.001,0);
     // std::cout << b << std::endl;
     auto param = conv->Parameters();
 

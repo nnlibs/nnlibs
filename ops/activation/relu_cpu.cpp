@@ -12,7 +12,8 @@ std::shared_ptr<Tensor> ReluCPU::Forward(const std::shared_ptr<Tensor> input) {
 }
 
 std::shared_ptr<Tensor> ReluCPU::Backward(const std::shared_ptr<Tensor> input,
-                                          float learning_rate) {
+                                          float learning_rate, float momentum) {
+    // learning_rate and momentum only used for trained layer
     std::shared_ptr<Tensor> diff = std::make_shared<Tensor>(input->shape);
     for (int i = 0; i < diff->Size(); i++) {
         diff->data[i] = input->data[i] * grad->data[i];

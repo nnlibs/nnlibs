@@ -59,12 +59,13 @@ class SimpleNetwork : public Network {
         // sigmoid->Forward(fc2->Forward(relu->Forward(fc1->Forward(input))));
     }
 
-    void Backward(const std::shared_ptr<Tensor> loss, float lr) override final {
+    void Backward(const std::shared_ptr<Tensor> loss, float lr,
+                  float momentum) override final {
         // calcu grad, update weights params
-        auto sig_diff = sigmoid->Backward(loss, lr);
-        auto fc2_diff = fc2->Backward(sig_diff, lr);
-        auto relu_diff = relu->Backward(sig_diff, lr);
-        auto fc1_diff = fc1->Backward(relu_diff, lr);
+        auto sig_diff = sigmoid->Backward(loss, lr, momentum);
+        auto fc2_diff = fc2->Backward(sig_diff, lr, momentum);
+        auto relu_diff = relu->Backward(sig_diff, lr, momentum);
+        auto fc1_diff = fc1->Backward(relu_diff, lr, momentum);
     }
 
     ~SimpleNetwork() {

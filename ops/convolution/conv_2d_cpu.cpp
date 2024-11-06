@@ -22,7 +22,6 @@ Conv2dCPU::Forward(const std::shared_ptr<Tensor> input) {
     in_width = input->shape[3];
 
     input_bakup = input;
-    // (in_size - kernel_size + 2*padding) / stride + 1
     out_height = (in_height + 2 * padding - kernel_h) / stride + 1;
     out_width = (in_width + 2 * padding - kernel_w) / stride + 1;
 
@@ -40,8 +39,8 @@ Conv2dCPU::Forward(const std::shared_ptr<Tensor> input) {
                     for (int kh = 0; kh < kernel_h; kh++) {
                         for (int kw = 0; kw < kernel_w; kw++) {
                             val += w_data({oc, ic, kh, kw}) *
-                                   in_data({0, ic, h * stride + kh,
-                                            w * stride + kw});
+                                   in_data({0, ic, h * stride + kh - padding,
+                                            w * stride + kw - padding});
                         }
                     }
                 }
@@ -55,7 +54,7 @@ Conv2dCPU::Forward(const std::shared_ptr<Tensor> input) {
 
 std::shared_ptr<Tensor>
 Conv2dCPU::Backward(const std::shared_ptr<Tensor> grad_output,
-                    float learning_rate) {
+                    float learning_rate, float momentum) {
     // 计算输入的梯度
     std::shared_ptr<Tensor> grad_input = std::make_shared<Tensor>(
         std::vector<int>{1, in_channel, in_height, in_width});
@@ -82,10 +81,13 @@ Conv2dCPU::Backward(const std::shared_ptr<Tensor> grad_output,
                 for (int c = 0; c < in_channel; ++c) {
                     for (int kh = 0; kh < kernel_h; ++kh) {
                         for (int kw = 0; kw < kernel_w; ++kw) {
-                            grad_input_mut({0, c, h + kh, w + kw}) +=
+                            grad_input_mut({0, c, h * stride + kh - padding,
+                                            w * stride + kw - padding}) +=
                                 grad * weights_mut({o, c, kh, kw});
                             grad_weights_mut({o, c, kh, kw}) +=
-                                grad * input_bakup_mut({0, c, h + kh, w + kw});
+                                grad * input_bakup_mut(
+                                           {0, c, h * stride + kh - padding,
+                                            w * stride + kw - padding});
                         }
                     }
                 }
@@ -95,16 +97,15 @@ Conv2dCPU::Backward(const std::shared_ptr<Tensor> grad_output,
     }
 
     // update weight/bias
-    for (int o = 0; o < out_channel; ++o) {
-        for (int c = 0; c < in_channel; ++c) {
-            for (int kh = 0; kh < kernel_h; ++kh) {
-                for (int kw = 0; kw < kernel_w; ++kw) {
-                    weights_mut({o, c, kh, kw}) -=
-                        grad_weights_mut({o, c, kh, kw}) * learning_rate;
-                }
-            }
-        }
-        bias->data[o] -= grad_biases->data[o] * learning_rate;
+    for (int i = 0; i < grad_weights->Size(); i++) {
+        weights_momentum->data[i] = momentum * weights_momentum->data[i] +
+                                    (1 - momentum) * grad_weights->data[i];
+        weights->data[i] -= learning_rate * weights_momentum->data[i];
+    }
+    for (int i = 0; i < grad_biases->Size(); i++) {
+        bias_momentum->data[i] = momentum * bias_momentum->data[i] +
+                                 (1 - momentum) * grad_biases->data[i];
+        bias->data[i] -= learning_rate * bias_momentum->data[i];
     }
 
     return grad_input;

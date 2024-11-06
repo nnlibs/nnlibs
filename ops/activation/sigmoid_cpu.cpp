@@ -17,7 +17,8 @@ SigmoidCPU::Forward(const std::shared_ptr<Tensor> input) {
 }
 
 std::shared_ptr<Tensor>
-SigmoidCPU::Backward(const std::shared_ptr<Tensor> input, float learning_rate) {
+SigmoidCPU::Backward(const std::shared_ptr<Tensor> input, float learning_rate,
+                     float momentum) {
     std::shared_ptr<Tensor> diff = std::make_shared<Tensor>(input->shape);
     for (int i = 0; i < input->Size(); i++) {
         diff->data[i] = input->data[i] * grad->data[i];

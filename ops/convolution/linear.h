@@ -1,7 +1,7 @@
 #pragma once
 
+#include "functional/functional.h"
 #include <iostream>
-#include <random>
 
 #include "operator.h"
 
@@ -18,16 +18,14 @@ class Linear : public Operator {
         weights = std::make_shared<Tensor>(
             std::vector<int>{out_features, in_features});
         bias = std::make_shared<Tensor>(std::vector<int>{out_features});
+        weights_momentum = std::make_shared<Tensor>(
+            std::vector<int>{out_features, in_features});
+        bias_momentum =
+            std::make_shared<Tensor>(std::vector<int>{out_features});
 
-        std::default_random_engine generator;
-        std::normal_distribution<double> distribution(0.0, 1.0);
-
+        F::kaiming_normal(weights, in_features);
         for (int i = 0; i < out_features; ++i) {
-            for (int j = 0; j < in_features; ++j) {
-                weights->data[i * in_features + j] =
-                    distribution(generator) * 0.01;
-            }
-            bias->data[i] = 0.0;
+            bias->data[i] = 0.0f;
         }
     }
 
@@ -36,7 +34,7 @@ class Linear : public Operator {
     }
 
     std::shared_ptr<Tensor> Backward(const std::shared_ptr<Tensor> output,
-                                     float learning_rate) {
+                                     float learning_rate, float momentum) {
         std::cout << "Linear backward not implement" << std::endl;
     }
 
@@ -45,6 +43,9 @@ class Linear : public Operator {
   protected:
     std::shared_ptr<Tensor> weights; // shape: (out_features, in_features)
     std::shared_ptr<Tensor> bias;    // shape: (out_features)
+    std::shared_ptr<Tensor>
+        weights_momentum;                  // shape: (out_features, in_features)
+    std::shared_ptr<Tensor> bias_momentum; // shape: (out_features)
     int in_features;
     int out_features;
 

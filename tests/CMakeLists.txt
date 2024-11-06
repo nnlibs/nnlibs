@@ -25,9 +25,17 @@ add_executable(CrossEntropyTest
 target_link_libraries(CrossEntropyTest PRIVATE nn_lib_test ops)
 add_test(NAME CrossEntropyTest COMMAND CrossEntropyTest)
 
-add_executable(SimpleNetTest ${CMAKE_CURRENT_LIST_DIR}/e2e_test.cpp)
-target_link_libraries(SimpleNetTest PRIVATE nn_lib_test ops)
-add_test(NAME SimpleNetTest COMMAND SimpleNetTest)
+add_executable(MaxPoll2DTest ${CMAKE_CURRENT_LIST_DIR}/ops/test_max_pool2d.cpp)
+target_link_libraries(MaxPoll2DTest PRIVATE nn_lib_test ops)
+add_test(NAME MaxPoll2DTest COMMAND MaxPoll2DTest)
+
+add_executable(LinearTest ${CMAKE_CURRENT_LIST_DIR}/ops/test_linear.cpp)
+target_link_libraries(LinearTest PRIVATE nn_lib_test ops)
+add_test(NAME LinearTest COMMAND LinearTest)
+
+# add_executable(SimpleNetTest ${CMAKE_CURRENT_LIST_DIR}/e2e_test.cpp)
+# target_link_libraries(SimpleNetTest PRIVATE nn_lib_test ops) add_test(NAME
+# SimpleNetTest COMMAND SimpleNetTest)
 
 # add_executable(EncoderTest ${CMAKE_CURRENT_LIST_DIR}/e2e_test.cpp)
 # target_link_libraries( EncoderTest PRIVATE nn_lib_test ops ) add_test(NAME

@@ -12,7 +12,8 @@ class Operator {
     Forward(const std::shared_ptr<Tensor> input) = 0;
 
     virtual std::shared_ptr<Tensor>
-    Backward(const std::shared_ptr<Tensor> output, float learning_rate) = 0;
+    Backward(const std::shared_ptr<Tensor> output, float learning_rate,
+             float momentum) = 0;
 
     virtual std::shared_ptr<Tensor> Parameters() = 0;
 

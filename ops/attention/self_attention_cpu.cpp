@@ -148,7 +148,8 @@ SelfAttentionCPU::Forward(std::shared_ptr<Tensor> input) {
 }
 
 std::shared_ptr<Tensor>
-SelfAttentionCPU::Backward(std::shared_ptr<Tensor> grad_output, float lr) {}
+SelfAttentionCPU::Backward(std::shared_ptr<Tensor> grad_output,
+                           float learning_rate, float momentum) {}
 
 std::shared_ptr<Tensor> SelfAttentionCPU::Parameters() { return nullptr; }
 

@@ -5,6 +5,7 @@
 #include <memory>
 
 #include "common/tensor.h"
+#include "functional/functional.h"
 #include "operator.h"
 
 class Conv2d : public Operator {
@@ -22,12 +23,14 @@ class Conv2d : public Operator {
           kernel_w(kernel_w), stride(stride), padding(padding) {
         weights = std::make_shared<Tensor>(
             std::vector<int>{out_channel, in_channel, kernel_h, kernel_w});
+        weights_momentum = std::make_shared<Tensor>(
+            std::vector<int>{out_channel, in_channel, kernel_h, kernel_w});
         bias = std::make_shared<Tensor>(std::vector<int>{out_channel});
-        // 随机初始化权重和偏置
-        std::srand(static_cast<unsigned int>(std::time(0)));
-        for (size_t i = 0; i < weights->Size(); ++i) {
-            weights->data[i] = static_cast<float>(std::rand()) / RAND_MAX;
-        }
+        bias_momentum = std::make_shared<Tensor>(std::vector<int>{out_channel});
+        // weight use Kaiming initialization
+        int fan_in = in_channel * kernel_h * kernel_w;
+        F::kaiming_normal(weights, fan_in);
+
         for (size_t i = 0; i < bias->Size(); ++i) {
             bias->data[i] = 0.0f; // 偏置初始化为0
         }
@@ -42,7 +45,7 @@ class Conv2d : public Operator {
     }
 
     std::shared_ptr<Tensor> Backward(const std::shared_ptr<Tensor> output,
-                                     float learning_rate) {
+                                     float learning_rate, float momentum) {
         std::cout << "Conv2d backward not implement" << std::endl;
         return nullptr;
     }
@@ -58,6 +61,8 @@ class Conv2d : public Operator {
     // [out_channel, in_channel, kernel_h, kernel_w]
     std::shared_ptr<Tensor> weights;
     std::shared_ptr<Tensor> bias;
+    std::shared_ptr<Tensor> weights_momentum;
+    std::shared_ptr<Tensor> bias_momentum;
     int stride;
     int padding;
     int in_channel;

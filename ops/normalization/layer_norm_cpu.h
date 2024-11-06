@@ -10,7 +10,8 @@ class LayerNormCPU : public LayerNorm {
     Forward(std::shared_ptr<Tensor> input) override final;
 
     std::shared_ptr<Tensor> Backward(std::shared_ptr<Tensor> input,
-                                     float lr) override final;
+                                     float learning_rate = 0.001f,
+                                     float momentum = 0.0f) override final;
     std::shared_ptr<Tensor> Parameters() override final;
 
     void ZeroGrad() override final;

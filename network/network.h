@@ -3,16 +3,17 @@
 #include "ops/ops.h"
 
 class Network {
- public:
-  Network(bool use_gpu = false) {}
+  public:
+    Network(bool use_gpu = false) {}
 
-  virtual std::shared_ptr<Tensor> Forward(
-      const std::shared_ptr<Tensor> input) = 0;
+    virtual std::shared_ptr<Tensor>
+    Forward(const std::shared_ptr<Tensor> input) = 0;
 
-  virtual void Backward(const std::shared_ptr<Tensor> loss, float lr) = 0;
+    virtual void Backward(const std::shared_ptr<Tensor> loss, float lr,
+                          float momentum) = 0;
 
-  virtual ~Network() {}
+    virtual ~Network() {}
 
- protected:
-  float learn_rate = 0.001;
+  protected:
+    float learn_rate = 0.001;
 };
