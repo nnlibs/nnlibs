@@ -6,7 +6,7 @@
 
 struct ClassifyImageData {
     std::shared_ptr<Tensor> image;
-    uint32_t label;
+    uint8_t label;
 };
 
 static std::vector<ClassifyImageData>
@@ -21,7 +21,9 @@ LoadClassifyImageList(const std::string &image_byte_data_file) {
     // <1 x label><3072 x pixel>
     while (!file.eof()) {
         ClassifyImageData image_data;
-        file.read((char *)&(image_data.label), sizeof(uint8_t));
+        uint8_t label;
+        file.read((char *)&label, sizeof(uint8_t));
+        image_data.label = label;
         uint8_t *data = new uint8_t[3072];
         file.read((char *)data, 3072);
 
@@ -48,5 +50,6 @@ LoadClassifyImageList(const std::string &image_byte_data_file) {
 
         delete[] data;
     }
+    file.close();
     return image_list;
 }

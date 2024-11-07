@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include "common/config.h"
 #include "common/tensor.h"
 
 class Operator {
