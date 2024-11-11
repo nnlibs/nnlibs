@@ -1,14 +1,15 @@
 #pragma once
 
 #include <iostream>
-#include <random>
 
 #include "operator.h"
 
 class MaxPool2d : public Operator {
   public:
     MaxPool2d(int kernel_size, int stride)
-        : kernel_size(kernel_size), stride(stride) {}
+        : kernel_size(kernel_size), stride(stride) {
+        kernel_area = kernel_size * kernel_size;
+    }
 
     std::shared_ptr<Tensor> Forward(const std::shared_ptr<Tensor> input) {
         std::cout << "MaxPool2d forward not implement" << std::endl;
@@ -23,6 +24,7 @@ class MaxPool2d : public Operator {
 
   protected:
     int kernel_size;
+    int kernel_area;
     int stride;
     int in_channels;
     int in_height;
@@ -31,6 +33,5 @@ class MaxPool2d : public Operator {
     int out_height;
     int out_width;
 
-    std::shared_ptr<Tensor> max_h_index;
-    std::shared_ptr<Tensor> max_w_index;
+    std::shared_ptr<Tensor> max_index;
 };

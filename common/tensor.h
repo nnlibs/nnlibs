@@ -41,6 +41,24 @@ class Tensor {
         return data[idx];
     }
 
+    uint32_t GetIndexByIndices(const std::vector<int> &indices, int &idx) {
+        if (indices.size() != shape.size()) {
+            std::cerr << "indices size not match shape size" << std::endl;
+            return 1;
+        }
+        idx = 0;
+        for (size_t i = 0; i < indices.size(); ++i) {
+            if (indices[i] >= shape[i]) {
+                std::cout << "indices[" << i << "] = " << indices[i]
+                          << " >= shape[" << i << "] = " << shape[i]
+                          << std::endl;
+                return 1;
+            }
+            idx += strides[i] * indices[i];
+        }
+        return 0;
+    }
+
     uint32_t SetValue(const std::vector<int> &indices, float value) {
         if (indices.size() != shape.size()) {
             std::cerr << "indices size not match shape size" << std::endl;

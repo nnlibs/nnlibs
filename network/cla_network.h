@@ -1,4 +1,5 @@
 #pragma once
+#include <chrono>
 
 #include "activation/relu_cpu.h"
 #include "convolution/conv_2d_cpu.h"
@@ -19,6 +20,7 @@ class ClassifyNetwork : public Network {
     MaxPool2dCpu *max_pool1;
     MaxPool2dCpu *max_pool2;
     std::vector<int> shape;
+    std::vector<long> delay;
 
   public:
     ClassifyNetwork(bool use_gpu = false) : Network(use_gpu) {
@@ -29,10 +31,10 @@ class ClassifyNetwork : public Network {
             ln1 = new LinearCPU(16 * 5 * 5, 120);
             ln2 = new LinearCPU(120, 84);
             ln3 = new LinearCPU(84, 10);
-            relu1 = new ReluCPU();
-            relu2 = new ReluCPU();
-            relu3 = new ReluCPU();
-            relu4 = new ReluCPU();
+            relu1 = new ReluCPU(true);
+            relu2 = new ReluCPU(true);
+            relu3 = new ReluCPU(true);
+            relu4 = new ReluCPU(true);
             max_pool1 = new MaxPool2dCpu(2);
             max_pool2 = new MaxPool2dCpu(2);
         }
@@ -91,7 +93,14 @@ class ClassifyNetwork : public Network {
         // std::cout << "max_pool1_grad: " << max_pool1_grad << std::endl;
         auto relu1_grad = relu1->Backward(max_pool1_grad, lr, momentum);
         // std::cout << "relu1_grad: " << relu1_grad << std::endl;
+        // auto start = std::chrono::high_resolution_clock::now();
         auto conv1_grad = conv1->Backward(relu1_grad, lr, momentum);
+        // auto end = std::chrono::high_resolution_clock::now();
+        // auto duration =
+        //     std::chrono::duration_cast<std::chrono::microseconds>(end -
+        //     start)
+        //         .count();
+        // delay.push_back(duration);
         // std::cout << "conv1_grad: " << conv1_grad << std::endl;
     }
 
@@ -107,6 +116,14 @@ class ClassifyNetwork : public Network {
         relu4->ZeroGrad();
         max_pool1->ZeroGrad();
         max_pool2->ZeroGrad();
+    }
+
+    void PrintDelay() {
+        long sum = 0;
+        for (auto d : delay) {
+            sum += d;
+        }
+        std::cout << "Average delay: " << sum / delay.size() << std::endl;
     }
 
     ~ClassifyNetwork() {

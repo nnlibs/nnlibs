@@ -2,7 +2,6 @@
 #include <iostream>
 #include <utility>
 
-#include "functional/functional.h"
 #include "loss/cross_entropy.h"
 #include "network/cla_network.h"
 #include "tests/utils/image_ut.h"
@@ -19,48 +18,6 @@ std::pair<uint8_t, float> Predict(const std::shared_ptr<Tensor> &logits) {
     return std::make_pair(max_idx, max_val);
 }
 
-// int main(int argc, char const *argv[]) {
-//     ClassifyNetwork clann;
-
-//     // =========== train ============
-//     int total_data = 1000;
-//     std::vector<std::shared_ptr<Tensor>> inputs(total_data);
-//     std::vector<std::shared_ptr<Tensor>> targets(total_data);
-//     for (int i = 0; i < total_data; ++i) {
-//         inputs[i] = std::make_shared<Tensor>(std::vector<int>{1, 1, 32, 32});
-//         for (int j = 0; j < inputs[i]->Size(); ++j) {
-//             inputs[i]->data[j] = (20 * (i + 1)) % 255;
-//         }
-//         // std::cout << "Input: " << inputs[i] << std::endl;
-//         targets[i] = std::make_shared<Tensor>(std::vector<int>{1, 10});
-//         targets[i]->data[i % 10] = 0.8;
-//         targets[i]->data[(i + 1) % 10] = 0.1;
-//         targets[i]->data[(i + 2) % 10] = 0.1;
-//         // std::cout << "Target: " << targets[i] << std::endl;
-//     }
-//     int iter = 1;
-//     for (int i = 0; i < iter; ++i) {
-//         for (int j = 0; j < total_data; ++j) {
-//             float iter_loss = 0.0f;
-//             clann.ZeroGrad();
-//             auto output = clann.Forward(inputs[j]);
-//             // std::cout << "output " << j << " is " << output << std::endl;
-//             iter_loss = F::MSELoss(output, targets[j]);
-//             std::shared_ptr<Tensor> diff =
-//                 std::make_shared<Tensor>(std::vector<int>{1, 10});
-//             for (int k = 0; k < 10; ++k) {
-//                 diff->data[i] =
-//                     2 * (output->data[k] - targets[j]->data[k]) / 10;
-//             }
-//             clann.Backward(diff, 0.001);
-//             std::cout << "---iter: " << i << ", loss: " << iter_loss
-//                       << std::endl;
-//         }
-//     }
-
-//     return 0;
-// }
-
 int main() {
     ClassifyNetwork clann;
     CrossEntropy ce;
@@ -76,6 +33,7 @@ int main() {
     std::cout << "Loading train data..." << std::endl;
     for (auto &file : train_files) {
         auto image_data_list = LoadClassifyImageList(train_file_prefix + file);
+        // image_data_list.resize(200);
         train_data_list.push_back(image_data_list);
     }
     std::cout << "Train start..." << std::endl;
@@ -90,8 +48,8 @@ int main() {
                 // init target
                 auto target = std::make_shared<Tensor>(std::vector<int>{1});
                 target->data[0] = image_data_list[j].label;
-                std::cout << "label: " << (uint32_t)image_data_list[j].label
-                          << " ,logits: " << logits << std::endl;
+                // std::cout << "label: " << (uint32_t)image_data_list[j].label
+                //           << " ,logits: " << logits << std::endl;
                 ep_loss += ce.Forward(logits, target);
                 auto loss_grad = ce.Backward(logits, target);
                 clann.Backward(loss_grad, 0.001, 0.9);
@@ -103,6 +61,7 @@ int main() {
             }
         }
     }
+    // clann.PrintDelay();
     std::cout << "Loading test data..." << std::endl;
     auto test_data_list = LoadClassifyImageList(train_file_prefix + test_file);
     uint32_t correct = 0;

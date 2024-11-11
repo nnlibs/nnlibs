@@ -15,26 +15,31 @@ class Conv2d : public Operator {
            const std::shared_ptr<Tensor> bias)
         : in_channel(in_channel), out_channel(out_channel), kernel_h(kernel_h),
           kernel_w(kernel_w), stride(stride), padding(padding),
-          weights(weights), bias(bias) {}
+          weights(weights), bias(bias) {
+        if (this->weights == nullptr) {
+            this->weights = std::make_shared<Tensor>(
+                std::vector<int>{out_channel, in_channel, kernel_h, kernel_w});
+            // weight use Kaiming initialization
+            int fan_in = in_channel * kernel_h * kernel_w;
+            F::kaiming_normal(this->weights, fan_in);
+        }
+        if (this->bias == nullptr) {
+            this->bias =
+                std::make_shared<Tensor>(std::vector<int>{out_channel});
+            for (size_t i = 0; i < this->bias->Size(); ++i) {
+                this->bias->data[i] = 0.0f; // 偏置初始化为0
+            }
+        }
+        weights_momentum = std::make_shared<Tensor>(
+            std::vector<int>{out_channel, in_channel, kernel_h, kernel_w});
+        bias_momentum = std::make_shared<Tensor>(std::vector<int>{out_channel});
+        kernel_area = kernel_h * kernel_w;
+    }
 
     Conv2d(int in_channel, int out_channel, int kernel_h, int kernel_w,
            int stride, int padding)
-        : in_channel(in_channel), out_channel(out_channel), kernel_h(kernel_h),
-          kernel_w(kernel_w), stride(stride), padding(padding) {
-        weights = std::make_shared<Tensor>(
-            std::vector<int>{out_channel, in_channel, kernel_h, kernel_w});
-        weights_momentum = std::make_shared<Tensor>(
-            std::vector<int>{out_channel, in_channel, kernel_h, kernel_w});
-        bias = std::make_shared<Tensor>(std::vector<int>{out_channel});
-        bias_momentum = std::make_shared<Tensor>(std::vector<int>{out_channel});
-        // weight use Kaiming initialization
-        int fan_in = in_channel * kernel_h * kernel_w;
-        F::kaiming_normal(weights, fan_in);
-
-        for (size_t i = 0; i < bias->Size(); ++i) {
-            bias->data[i] = 0.0f; // 偏置初始化为0
-        }
-    }
+        : Conv2d(in_channel, out_channel, kernel_h, kernel_w, stride, padding,
+                 nullptr, nullptr) {}
 
     Conv2d(int in_channel, int out_channel, int kernel_size)
         : Conv2d(in_channel, out_channel, kernel_size, kernel_size, 1, 0) {}
@@ -69,6 +74,7 @@ class Conv2d : public Operator {
     int out_channel;
     int kernel_h;
     int kernel_w;
+    int kernel_area;
 
     int in_height;
     int in_width;

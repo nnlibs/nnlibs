@@ -4,7 +4,7 @@
 
 class ReluCPU : public Relu {
   public:
-    ReluCPU();
+    ReluCPU(bool inplace = false);
 
     std::shared_ptr<Tensor>
     Forward(const std::shared_ptr<Tensor> input) override final;
