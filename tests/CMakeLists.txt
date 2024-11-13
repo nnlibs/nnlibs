@@ -1,3 +1,4 @@
+add_subdirectory(matrix)
 # include_directories(${CMAKE_CURRENT_LIST_DIR}/utils)
 
 add_executable(TensorTest ${CMAKE_CURRENT_LIST_DIR}/test_tensor.cpp)

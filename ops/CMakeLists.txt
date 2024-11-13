@@ -13,3 +13,6 @@ target_link_libraries(ops OpenMP::OpenMP_CXX)
 target_compile_options(ops PRIVATE "-mavx2")
 
 target_link_libraries(ops ${LIB_LIST})
+
+# openblas
+target_link_libraries(ops openblas)

@@ -80,5 +80,5 @@ class Conv2d : public Operator {
     int in_width;
     int out_height;
     int out_width;
-    std::shared_ptr<Tensor> input_bakup;
+    std::shared_ptr<Tensor> col_buffer;
 };

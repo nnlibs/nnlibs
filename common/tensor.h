@@ -17,17 +17,21 @@
 
 class Tensor {
   public:
-    Tensor(const std::vector<int> &shape) : shape(shape) {
+    Tensor(const std::vector<int> &shape) : Tensor(shape, 0.0f) {}
+    Tensor(const std::vector<int> &shape, float init_value) : shape(shape) {
         int total_size = std::accumulate(shape.begin(), shape.end(), 1,
                                          std::multiplies<int>());
-        data.resize(total_size, 0.0f);
+        data.resize(total_size, init_value);
         strides = compute_strides(shape);
     }
 
-    Tensor(const std::initializer_list<int> &shape) : shape(shape) {
+    Tensor(const std::initializer_list<int> &shape) : Tensor(shape, 0.0f) {}
+
+    Tensor(const std::initializer_list<int> &shape, float init_value)
+        : shape(shape) {
         int total_size = std::accumulate(shape.begin(), shape.end(), 1,
                                          std::multiplies<int>());
-        data.resize(total_size, 0.0f);
+        data.resize(total_size, init_value);
         strides = compute_strides(this->shape);
     }
 

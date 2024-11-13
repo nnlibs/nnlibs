@@ -68,6 +68,7 @@ class ClassifyNetwork : public Network {
 
     void Backward(const std::shared_ptr<Tensor> loss, float lr,
                   float momentum) override final {
+        // auto start = std::chrono::high_resolution_clock::now();
         auto liner3_grad = ln3->Backward(loss, lr, momentum);
         // std::cout << "liner3_grad: " << liner3_grad << std::endl;
         auto relu4_grad = relu4->Backward(liner3_grad, lr, momentum);
@@ -93,7 +94,6 @@ class ClassifyNetwork : public Network {
         // std::cout << "max_pool1_grad: " << max_pool1_grad << std::endl;
         auto relu1_grad = relu1->Backward(max_pool1_grad, lr, momentum);
         // std::cout << "relu1_grad: " << relu1_grad << std::endl;
-        // auto start = std::chrono::high_resolution_clock::now();
         auto conv1_grad = conv1->Backward(relu1_grad, lr, momentum);
         // auto end = std::chrono::high_resolution_clock::now();
         // auto duration =

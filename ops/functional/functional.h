@@ -3,10 +3,12 @@
 #include <algorithm>
 #include <array>
 #include <cassert>
+#include <chrono>
 #include <cmath>
 #include <memory>
 #include <random>
 #include <vector>
+#include <x86intrin.h>
 
 namespace F {
 static std::shared_ptr<Tensor> max_pool2d(const std::shared_ptr<Tensor> input,
@@ -110,6 +112,51 @@ static void kaiming_normal(std::shared_ptr<Tensor> weights, int fan_in) {
     for (int i = 0; i < weights->Size(); ++i) {
         weights->data[i] = distribution(generator);
     }
+}
+
+static std::shared_ptr<Tensor> Im2Col(const std::shared_ptr<Tensor> input,
+                                      int in_channel, int input_height,
+                                      int input_width, int kernel_h,
+                                      int kernel_w, int stride, int padding,
+                                      int output_height, int output_width) {
+    auto start = std::chrono::high_resolution_clock::now();
+    std::shared_ptr<Tensor> col_buffer = // [K,N]
+        std::make_shared<Tensor>(std::vector<int>{
+            in_channel * kernel_h * kernel_w, output_height * output_width});
+    int kernel_area = kernel_h * kernel_w;
+    int out_area = output_height * output_width;
+    int input_area = input_height * input_width;
+    for (int c = 0; c < in_channel; ++c) {
+        for (int kh = 0; kh < kernel_h; ++kh) {
+            for (int kw = 0; kw < kernel_w; ++kw) {
+                for (int h = 0; h < output_height; ++h) {
+                    for (int w = 0; w < output_width; ++w) {
+                        int h_in = h * stride - padding + kh;
+                        int w_in = w * stride - padding + kw;
+                        if (h_in >= 0 && h_in < input_height && w_in >= 0 &&
+                            w_in < input_width) {
+                            col_buffer
+                                ->data[(c * kernel_area + kh * kernel_w + kw) *
+                                           out_area +
+                                       h * output_width + w] =
+                                input->data[c * input_area +
+                                            h_in * input_width + w_in];
+                        } else {
+                            col_buffer
+                                ->data[(c * kernel_area + kh * kernel_w + kw) *
+                                           out_area +
+                                       h * output_width + w] = 0.0f;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration =
+        std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+    std::cout << "Im2Col time: " << duration.count() << "us" << std::endl;
+    return col_buffer;
 }
 
 } // namespace F
