@@ -18,12 +18,15 @@ std::pair<uint8_t, float> Predict(const std::shared_ptr<Tensor> &logits) {
     return std::make_pair(max_idx, max_val);
 }
 
-int main() {
+int main(int argc, char **argv) {
     ClassifyNetwork clann;
     CrossEntropy ce;
 
-    std::string train_file_prefix =
-        "/home/aico/Downloads/images/cifar-10-batches-bin/";
+    if (argc != 2) {
+        std::cout << "Usage: ClaTest <train_file_prefix> \n";
+        return -1;
+    }
+    std::string train_file_prefix = argv[1];
     std::vector<std::string> train_files = {
         "data_batch_1.bin", "data_batch_2.bin", "data_batch_3.bin",
         "data_batch_4.bin", "data_batch_5.bin"};
